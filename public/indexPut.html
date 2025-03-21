@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUT</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: radial-gradient(circle, #333, #000);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        div { 
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        h1, h3 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-top: 8px; 
+            color: #ddd;
+            font-size: 0.9em;
+        }
+        
+        input[type="text"] {
+            width: calc(100% - 800px);
+            padding: 8px; 
+            margin-top: 3px;
+            margin-bottom: 10px; 
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        input[type="text"][readonly] {
+            background-color: #555;
+            color: #aaa;
+        }
+        
+        input[type="button"] {
+            background-color: #fff;
+            color: #000;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 5px;
+            font-size: 0.9em;
+        }
+        
+        input[type="button"]:hover {
+            background-color: #ddd;
+        }
+        
+        table {
+            width: calc(100% - 600px);
+            border-collapse: collapse;
+            margin-top: 15px; 
+        }
+        
+        th, td {
+            border: 1px solid #555;
+            padding: 6px; /* Diminui o padding */
+            text-align: left;
+            font-size: 0.9em; /* Diminui o tamanho da fonte */
+        }
+        
+        th {
+            background-color: #333;
+            color: #fff;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #222;
+        }
+        
+        /* Estilos adicionais para melhorar a legibilidade */
+        h1, h3, label, input, th, td {
+            font-size: 1em; /* Ajuste fino do tamanho da fonte */
+        }
+        a{
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>PUT</h3>
+    <label>ID:</label>
+    <input type="text" id="id" readonly><br>
+    <label>Nome:</label>
+    <input type="text" id="nomeAtualizar">
+    <br>
+    <label>Idade:</label>
+    <input type="text" id="idadeAtualizar">
+    <br>
+    <label>CPF:</label>
+    <input type="text" id="cpfAtualizar" placeholder="Digite o CPF para busca">
+    <br>
+    <input type="button" onclick="buscarDados()" value="Buscar"><br>
+    <input type="button" onclick="atualizarDados()" value="Atualizar">
+    <br>
+    <h1>Dados Cadastrais - GET</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>CPF</th>
+        </tr>
+        <tbody id="tabela-corpo"></tbody>
+    </table><br>
+    <a href="index2.html" style="color: white;">forms</a><br>
+    <input type="button" value="DELETE" onclick="del()">
+    <script>
+        //GET   
+        function buscarDados() {
+            const cpf = document.getElementById('cpfAtualizar').value;
+            fetch(`pessoas`, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const pessoaEncontrada = data.find(pessoa => pessoa.cpf === cpf);
+
+                    console.log(data)
+                    if (pessoaEncontrada) {
+                        document.getElementById('nomeAtualizar').value = pessoaEncontrada.nome;
+                        document.getElementById('idadeAtualizar').value = pessoaEncontrada.idade;
+                        document.getElementById('cpfAtualizar').value = pessoaEncontrada.cpf;
+                        document.getElementById('id').value = pessoaEncontrada.id;
+                    } else {
+                        alert('Pessoa não encontrada!');
+                    }
+                })
+        }
+
+
+
+        //PUT
+        function atualizarDados() {
+            const id = document.getElementById('id').value;
+            const nome = document.getElementById('nomeAtualizar').value;
+            const idade = document.getElementById('idadeAtualizar').value;
+            const cpf = document.getElementById('cpfAtualizar').value;
+
+            fetch(`pessoas/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome: nome, idade: idade, cpf: cpf })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // limpa os inputs do formulário
+                    document.getElementById('id').value = '';
+                    document.getElementById('nomeAtualizar').value = '';
+                    document.getElementById('idadeAtualizar').value = '';
+                    document.getElementById('cpfAtualizar').value = '';
+                });
+
+        }
+        fetch(`pessoas`)
+            .then(response => response.json())
+            .then(data => {
+                const tabela = document.getElementById('tabela-corpo');
+                //Utilizado o loop ForEach para interar cada objeto no array retornado a API
+                data.forEach((objeto) => {
+                    //Adicionado essa string de template ao conteudo HTML do corpo da tabela.
+                    const linha = `<tr>
+                    <td>${objeto.id}</td>
+                    <td>${objeto.nome}</td>
+                    <td>${objeto.idade}</td>
+                    <td>${objeto.cpf}</td>
+                </tr>`;
+                    tabela.innerHTML += linha;
+                })
+            })
+            function del(){
+                window.location.href = 'indexDel.html'
+            }
+    </script>
+</body>
+
+</html>

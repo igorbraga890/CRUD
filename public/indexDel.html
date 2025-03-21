@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DELETE</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: radial-gradient(circle, #333, #000);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        div {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        h1,
+        h3 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+            color: #ddd;
+            font-size: 0.9em;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 800px);
+            padding: 8px;
+            margin-top: 3px;
+            margin-bottom: 10px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        input[type="button"] {
+            background-color: #fff;
+            color: #000;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input[type="button"]:hover {
+            background-color: #ddd;
+        }
+
+        table {
+            width: calc(100% - 400px);
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #555;
+            padding: 6px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #222;
+        }
+        h1,
+        h3,
+        label,
+        input,
+        th,
+        td {
+            font-size: 1em;
+        }
+        a{
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>DELETE</h3>
+    <label>CPF:</label>
+    <input type="text" id="cpf">
+    <input type="button" onclick="deletarDados()" value="Deletar"><br>
+
+    <h1>Dados Cadastrais - GET</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Idade</th>
+            <th>CPF</th>
+        </tr>
+        <tbody id="tabela-corpo"></tbody>
+    </table><br><br>
+    <input type="button" value="PUT" onclick="put()"><br>
+    <a href="index2.html" style="color: white;">forms</a><br>
+    <script>
+        //GET   
+        function buscarDados() {
+            const cpf = document.getElementById('cpfAtualizar').value;
+            fetch(`pessoas`, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const pessoaEncontrada = data.find(pessoa => pessoa.cpf === cpf);
+
+                    console.log(data)
+                    if (pessoaEncontrada) {
+                        document.getElementById('nomeAtualizar').value = pessoaEncontrada.nome;
+                        document.getElementById('idadeAtualizar').value = pessoaEncontrada.idade;
+                        document.getElementById('cpfAtualizar').value = pessoaEncontrada.cpf;
+                        document.getElementById('id').value = pessoaEncontrada.id;
+                    } else {
+                        alert('Pessoa não encontrada!');
+                    }
+                })
+        }
+        //DELETE
+        function deletarDados() {
+            const cpf = document.getElementById("cpf").value;
+
+            fetch(`pessoas`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cpf').value = '';
+                    data.forEach(obj => {
+                        if (obj.cpf === cpf) {
+                            fetch(`pessoas/${obj.id}`, {
+                                method: 'DELETE'
+                            });
+                        }
+                    });
+                });
+        }
+        fetch(`pessoas`)
+            .then(response => response.json())
+            .then(data => {
+                const tabela = document.getElementById('tabela-corpo');
+                //Utilizado o loop ForEach para interar cada objeto no array retornado a API
+                data.forEach((objeto) => {
+                    //Adicionado essa string de template ao conteudo HTML do corpo da tabela.
+                    const linha = `<tr>
+                    <td>${objeto.id}</td>
+                    <td>${objeto.nome}</td>
+                    <td>${objeto.idade}</td>
+                    <td>${objeto.cpf}</td>
+                </tr>`;
+                    tabela.innerHTML += linha;
+                })
+            })
+            function put(){
+                window.location.href = 'indexPut.html'
+            }
+            function form(){
+                window.location.href = 'index.html'
+            }
+    </script>
+</body>
+
+</html>
